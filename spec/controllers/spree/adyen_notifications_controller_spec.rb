@@ -30,6 +30,15 @@ module Spree
           spree_post :notify, params
         }.to change { AdyenNotification.count }.by(1)
       end
+      
+      it "captures payment if successful" do
+        delayed_payment = double 'Delayed Payment'
+        Spree::Payment.should_receive(:find_by).and_return payment
+        payment.should_receive(:delay).and_return delayed_payment
+        delayed_payment.should_receive(:capture!)
+
+        spree_post :notify, params
+      end
     end
 
     context "request not authenticated" do

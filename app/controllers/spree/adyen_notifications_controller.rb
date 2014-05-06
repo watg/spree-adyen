@@ -7,6 +7,14 @@ module Spree
     def notify
       @notification = AdyenNotification.log(params)
       @notification.handle!
+
+      if @notification.successful_authorisation?
+        payment = Spree::Payment.find_by(response_code: @notification.psp_reference)
+        if payment
+          payment.delay(run_at: 2.minutes.from_now).capture!
+        end
+      end
+      
     rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
       # Validation failed, because of the duplicate check.
       # So ignore this notification, it is already stored and handled.
