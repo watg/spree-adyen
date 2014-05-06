@@ -4,7 +4,7 @@
 </p>
 
 <% redirect_params = {
-        :currency_code => Spree::Config.currency,
+        :currency_code => @order.currency || Spree::Config.currency,
         # :merchantReturnData => payment_method.id,
         :ship_before_date => Date.tomorrow,
         :session_validity => 10.minutes.from_now,
