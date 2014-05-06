@@ -13,7 +13,7 @@ module Spree
     end
 
     def payment_profiles_supported?
-      true
+      false
     end
 
     def authorize(amount, source, gateway_options = {})
