@@ -24,6 +24,7 @@ module Spree
         { :order_id => 17,
           :email => "surf@uk.com",
           :customer_id => 1,
+          :currency => 'EUR',
           :ip => "127.0.0.1" }
       end
 
@@ -48,6 +49,16 @@ module Spree
         expect {
           subject.authorize(30000, cc, options)
         }.not_to raise_error
+      end
+
+      it "calls authrorize payment with the correct arguments (currency as well)" do
+        expect(subject.provider).to receive(:authorise_payment).with(
+            17, 
+            {:currency=>"EUR", :value=>30000}, 
+            {:reference=>1, :email=>"surf@uk.com", :ip=>"127.0.0.1", :statement=>"Order # 17"}, 
+            {:holder_name=>"Spree Commerce", :number=>"4111111111111111", :cvc=>123, :expiry_month=>12, :expiry_year=>2014}).
+            and_return(double('response', :success? => true))
+        subject.authorize(30000, cc, options)
       end
 
       it "user order email as shopper reference when theres no user" do

@@ -19,6 +19,7 @@ module Spree
       before do
         payment_method.stub_chain(:provider, authorise_payment: response)
         payment_method.stub_chain(:provider, list_recurring_details: details_response)
+        payment_method.stub(payment_profiles_supported?: true)
       end
 
       specify do

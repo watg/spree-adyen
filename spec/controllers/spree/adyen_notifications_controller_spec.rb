@@ -3,6 +3,8 @@ require 'spec_helper'
 module Spree
   describe AdyenNotificationsController do
     context "request authenticated" do
+      let(:payment) { create(:payment, response_code: params["pspReference"]) }
+      
       before do
         ENV["ADYEN_NOTIFY_USER"] = "username"
         ENV["ADYEN_NOTIFY_PASSWD"] = "password"
