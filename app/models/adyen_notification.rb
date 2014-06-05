@@ -73,13 +73,32 @@ class AdyenNotification < ActiveRecord::Base
 
   alias_method :successful_authorization?, :successful_authorisation?
 
+  def handle_and_capture!
+    payment = get_payment
+    if payment
+      handle!(payment)
+      capture!(payment)
+    end
+  end
+
+  def capture!(payment)
+    if successful_authorisation?
+      payment.capture!
+    end
+  end
+
   # Invalidate payments that doesnt receive a successful notification
-  def handle!
+  def handle!(payment)
     if (authorisation? || capture?) && !success?
-      payment = Spree::Payment.find_by(response_code: psp_reference)
-      if payment && !payment.failed? && !payment.invalid?
+      if !payment.failed? && !payment.invalid?
         payment.invalidate!
       end
     end
   end
+
+  private
+  def get_payment
+    Spree::Payment.find_by(response_code: psp_reference)
+  end
+
 end

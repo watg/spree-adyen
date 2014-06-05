@@ -1,8 +1,18 @@
 require 'spec_helper'
 
 module Spree
-  describe AdyenRedirectController do
+  describe AdyenRedirectController, type: :controller do
     let(:order) { create(:order_with_line_items, state: "payment") }
+
+    def params
+      { "merchantReference"=>"R183301255",
+        "skinCode"=>"Nonenone",
+        "shopperLocale"=>"en_GB",
+        "paymentMethod"=>"visa",
+        "authResult"=>"AUTHORISED",
+        "pspReference"=>"8813824003752247",
+        "merchantSig"=>"erewrwerewrewrwer" }
+    end
 
     context "Adyen HPP Gateway" do
       def params
