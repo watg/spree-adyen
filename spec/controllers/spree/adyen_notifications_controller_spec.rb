@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Spree
-  describe AdyenNotificationsController do
+  describe AdyenNotificationsController, type: :controller do
     context "request authenticated" do
       let(:payment) { create(:payment, response_code: params["pspReference"]) }
       
@@ -28,19 +28,40 @@ module Spree
       end
 
       it "logs notitification" do
+        delayed_notification = double 'Delayed Notification'
+        AdyenNotification.any_instance.should_receive(:delay).once.and_return delayed_notification
+        delayed_notification.should_receive(:handle_and_capture!)
         expect {
           spree_post :notify, params
         }.to change { AdyenNotification.count }.by(1)
       end
       
       it "captures payment if successful" do
-        delayed_payment = double 'Delayed Payment'
-        Spree::Payment.should_receive(:find_by).and_return payment
-        payment.should_receive(:delay).and_return delayed_payment
-        delayed_payment.should_receive(:capture!)
+        notification = double 'Notification'
+        delayed_notification = double 'Delayed Notification'
+        AdyenNotification.should_receive(:log).and_return notification
+        notification.should_receive(:delay).and_return delayed_notification
+        delayed_notification.should_receive(:handle_and_capture!)
 
         spree_post :notify, params
       end
+
+      it "handles exception" do
+        exception = Exception.new("no joy")
+        #exception = ActiveRecord::RecordNotUnique.new("!23123")
+        AdyenNotification.should_receive(:log).and_raise(exception)
+        Rails.logger.should_receive(:error).with(/#{exception.message}/)
+        spree_post :notify, params
+      end
+
+      it "handles exception ActiveRecord::RecordNotUnique" do
+        exception = ActiveRecord::RecordNotUnique.new("!23123")
+        AdyenNotification.should_receive(:log).and_raise(exception)
+        Rails.logger.should_receive(:info).with(/#{exception.message}/)
+        spree_post :notify, params
+      end
+     
+     
     end
 
     context "request not authenticated" do

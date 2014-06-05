@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Spree
-  describe AdyenRedirectController do
+  describe AdyenRedirectController, type: :controller do
     def params
       { "merchantReference"=>"R183301255",
         "skinCode"=>"Nonenone",
