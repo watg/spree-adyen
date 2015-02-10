@@ -51,6 +51,13 @@ module Spree
         }.not_to raise_error
       end
 
+      it "calls authrorize payment with the correct arguments (currency as well)" do
+        expect(subject.provider).to receive(:authorise_payment).with(17, {:currency=>"USD", :value=>30000}, anything, anything, anything).
+           and_return(double('response', :success? => true))
+        subject.authorize(30000, cc, options)
+      end
+
+
       it "user order email as shopper reference when theres no user" do
         cc.gateway_customer_profile_id = "123"
         options[:customer_id] = nil
