@@ -20,6 +20,7 @@ module Spree
       before do
         expect(gateway.provider).to receive(:authorise_payment).and_return(response)
         expect(gateway.provider).to receive(:list_recurring_details).and_return(details)
+        allow_any_instance_of(Spree::Gateway::AdyenPaymentEncrypted).to receive(:payment_profiles_supported?).and_return(true)
       end
 
       it "transitions to complete just fine" do
@@ -32,7 +33,6 @@ module Spree
         end
         payment.complete
         order.payment_total = payment.amount
-
 
         order.next!
         expect(order.state).to eq "confirm"
