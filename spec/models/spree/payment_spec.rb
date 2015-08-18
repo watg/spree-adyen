@@ -102,6 +102,10 @@ module Spree
         end
       end
 
+      before do
+        allow(payment_method).to receive(:payment_profiles_supported?).and_return(true)
+      end
+
       include_examples "set up a profile on payment creation"
     end
   end
