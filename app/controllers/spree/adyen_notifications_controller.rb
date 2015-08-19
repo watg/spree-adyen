@@ -6,10 +6,13 @@ module Spree
 
     def notify
       @notification = AdyenNotification.log(params)
-      @notification.handle!
+      @notification.delay(run_at: 2.minutes.from_now).handle_and_capture!
     rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => e
       # Validation failed, because of the duplicate check.
       # So ignore this notification, it is already stored and handled.
+      Rails.logger.info "#{e.message}"
+    rescue Exception => e
+      Rails.logger.error "#{e.message} -- #{e.backtrace}"
     ensure
       # Always return that we have accepted the notification
       render :text => '[accepted]'

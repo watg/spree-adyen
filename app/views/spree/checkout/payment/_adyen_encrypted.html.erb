@@ -35,11 +35,17 @@
 <%= javascript_include_tag "adyen.encrypt.js" %>
 
 <script>    
-    var form = document.getElementById('checkout_form_payment');    
-    var key = "<%= payment_method.options[:public_key] %>";
-    var options = {
-      'name': "<%= "payment_source[#{payment_method.id}][encrypted_data]" %>"
-    }; 
-    // the form will be encrypted before it is submitted
-    adyen.encrypt.createEncryptedForm(form, key, options);
+   // the form will be encrypted before it is submitted
+   // This has to be loaded after the dom is ready
+   var setCreateEncryptedForm = function(e) {
+     var form = document.getElementById('checkout_form_payment');    
+     var key = "<%= payment_method.options[:public_key] %>";
+     var options = {
+       'name': "<%= "payment_source[#{payment_method.id}][encrypted_data]" %>"
+     }; 
+     adyen.encrypt.createEncryptedForm(form, key, options);
+   }
+
+  document.addEventListener("DOMContentLoaded", setCreateEncryptedForm);
+  document.addEventListener("page:load", setCreateEncryptedForm);
 </script>

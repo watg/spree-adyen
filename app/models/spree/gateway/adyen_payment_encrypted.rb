@@ -13,7 +13,7 @@ module Spree
     end
 
     def payment_profiles_supported?
-      true
+      false
     end
 
     def authorize(amount, source, gateway_options = {})
@@ -29,6 +29,11 @@ module Spree
     def create_profile(payment)
       card = { encrypted: { json: payment.source.encrypted_data } }
       create_profile_on_card payment, card
+    end
+
+    def add_contract(source, user, shopper_ip)
+      card = { encrypted: { json: source.encrypted_data } }
+      set_up_contract source, card, user, shopper_ip
     end
   end
 end
